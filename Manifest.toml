@@ -1,0 +1,10 @@
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.12.3"
+manifest_format = "2.0"
+project_hash = "713470d0e9f6adbc1d4edc356d93a0839ac7d95b"
+
+[[deps.FreePoleHeom]]
+path = "."
+uuid = "1b3ed703-cc68-4823-bf01-7c2dbc0910fe"
+version = "1.0.0-DEV"
