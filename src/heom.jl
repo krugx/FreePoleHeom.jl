@@ -1,7 +1,11 @@
 
+function build_heom_structure(
+  K::Int,
+  T::Int,
+  hild::Int;
+  useLtrunc::Bool=true
+)
 
-
-function build_heom_structure(K::Int, T::Int, hild::Int; useLtrunc::Bool=true)
   ados = Vector{Vector{Int}}()
   idxmap = Dict{Vector{Int},Int}()
   itvs = Vector{UnitRange{Int}}()
@@ -40,9 +44,15 @@ function diag_ado(r, op::HEOMOperator, cops::CachedOps)
   return ado_op
 end
 
-function shift_ado(r, j::Int, offset::Int, direction::Int, op::HEOMOperator, cops::CachedOps)
-  st = op.structure
+function shift_ado(
+  r, j::Int,
+  offset::Int,
+  direction::Int,
+  op::HEOMOperator,
+  cops::CachedOps
+)
 
+  st = op.structure
   d_ext = vcat(op.d, conj.(op.d))
 
   if direction == -1
