@@ -5,27 +5,26 @@ function check_stability(prop::HEOMPropagator)
 
   v = zeros(ComplexF64, dim)
   # initial guess for steady state in convergence
-  v[1:st.hild^2] = reshape(1 / 2 * [1 1-im; 1+im 1], (st.hild^2, 1))
-  lambda, v_lambda = eigs(prop.mat, nev=1; which=:LR, maxiter=2000, check=1, v0=v)
+  v[1:st.hild^2] = reshape(1 / 2 * [1 1-1im; 1+1im 1], (st.hild^2, 1))
+  lambda, v_lambda = eigs(
+    prop.mat,
+    nev=1;
+    which=:LR,
+    maxiter=4000,
+    check=1,
+    v0=v
+  )
 
   lambda = real(lambda[1])
   v_lambda = sparsevec(v_lambda)
 
-  ## Check if stable
-  println("max({Re(lambda_i)}) = $lambda \n")
   if lambda <= 1e-6
-    rho_SS = reshape(v_lambda[1:st.hild^2], st.hild, st.hild)
-    phys_SS = rho_SS / tr(rho_SS)
-    ado_SS = v_lambda / tr(rho_SS)
+    rho_ss = reshape(v_lambda[1:st.hild^2], st.hild, st.hild)
+    phys_SS = rho_ss / tr(rho_ss)
+    ado_ss = v_lambda / tr(rho_ss)
 
-    println("Physical steady state rho=")
-    display(rho_SS)
-    println("\n")
-    println("Steady state of ADO state = ")
-    display(v_lambda)
-    return phys_SS, ado_SS
+    return phys_SS, ado_ss
   else
-    println("Instable HEOM dynamics!")
     return -1
   end
 end
