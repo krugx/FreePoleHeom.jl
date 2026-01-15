@@ -12,7 +12,7 @@ end
 struct HEOMOperator
   structure::HEOMStructure
   H::Matrix{ComplexF64}
-  q::Matrix{ComplexF64}
+  q::Vector{Matrix{ComplexF64}}
   d::Vector{ComplexF64}
   gamma::Vector{ComplexF64}
 end
@@ -20,17 +20,22 @@ end
 struct CachedOps
   Id_op::SparseMatrixCSC
   L_op::SparseMatrixCSC
-  Q_op::SparseMatrixCSC
-  Q_L_op::SparseMatrixCSC
-  Q_R_op::SparseMatrixCSC
+  Q_op::Vector{SparseMatrixCSC}
+  Q_L_op::Vector{SparseMatrixCSC}
+  Q_R_op::Vector{SparseMatrixCSC}
   function CachedOps(H, q)
     id = sparse(diagm(ones(size(H, 1))))
     Id_op = kron(transpose(id), id)
     L_op = kron(transpose(id), H) - kron(transpose(H), id)
     Id_op = kron(transpose(id), id)
-    Q_op = kron(transpose(id), q) - kron(transpose(q), id)
-    Q_L_op = kron(transpose(id), q)
-    Q_R_op = kron(transpose(q), id)
+    Q_op = []
+    Q_L_op = []
+    Q_R_op = []
+    for (i, qi) in enumerate(q)
+      push!(Q_op, kron(transpose(id), qi) - kron(transpose(qi), id))
+      push!(Q_L_op, kron(transpose(id), qi))
+      push!(Q_R_op, kron(transpose(qi), id))
+    end
 
     new(Id_op, L_op, Q_op, Q_L_op, Q_R_op)
   end
@@ -44,7 +49,8 @@ struct HEOMPropagator
     new(build_matrix(op), op.structure, op)
   end
   function HEOMPropagator(structure, H, q, d, gamma)
-    @assert size(H) == size(q)
+    @assert size(H) == size(q[1])
+    @assert length(q) == structure.K
     @assert length(d) == length(gamma)
     op = HEOMOperator(structure, H, q, d, gamma)
     new(build_matrix(op), structure, op)
