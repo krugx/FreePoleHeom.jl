@@ -56,12 +56,12 @@ function shift_ado(
   d_ext = vcat(op.d, conj.(op.d))
 
   if direction == -1
-    return -im * sqrt(r[j+offset] * d_ext[j+offset]) * cops.Q_op
+    return -im * sqrt(r[j+offset] * d_ext[j+offset]) * cops.Q_op[j]
   elseif direction == +1
     if offset == 0
-      return -im * sqrt((r[j+offset] + 1) * d_ext[j+offset]) * cops.Q_L_op
+      return -im * sqrt((r[j+offset] + 1) * d_ext[j+offset]) * cops.Q_L_op[j]
     elseif offset == st.K
-      return +im * sqrt((r[j+offset] + 1) * d_ext[j+offset]) * cops.Q_R_op
+      return +im * sqrt((r[j+offset] + 1) * d_ext[j+offset]) * cops.Q_R_op[j]
     end
   end
 end
