@@ -19,10 +19,3 @@ This package is designed to be versatile, supporting both:
 
 - [Theory](theory.md): Mathematical derivation and details on the Rotating Frame FP-HEOM.
 - [API Reference](api.md): Documentation of types and functions.
-
-## Installation
-
-```julia
-using Pkg
-Pkg.add("FreePoleHeom")
-```

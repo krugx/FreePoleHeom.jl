@@ -129,14 +129,14 @@ Here, $m_j$ tracks the excitation from the "forward" path (Left multiplication) 
 
 The equation of motion is:
 
-$$ 
+$$
 \begin{aligned}
 \frac{d}{dt}\hat{\rho}_{\mathbf{m,n}} &= -i \left[ \hat{H}_S^{RWA}, \hat{\rho}_{\mathbf{m,n}} \right] 
 - \sum_{j=1}^{2M} (m_j \tilde{\gamma}_j + n_j \tilde{\gamma}_j^*) \hat{\rho}_{\mathbf{m,n}} \\
-&\quad \text{// Interaction Terms (Creation)}
-\quad -i \sum_{j=1}^{2M} \sqrt{(m_j+1)\tilde{d}_j} \; \hat{q}_j \hat{\rho}_{\mathbf{m}_j^+, \mathbf{n}}  \quad (\text{Left coupling})\\
+&\quad \text{// Interaction Terms (Creation)} \\
+&\quad -i \sum_{j=1}^{2M} \sqrt{(m_j+1)\tilde{d}_j} \; \hat{q}_j \hat{\rho}_{\mathbf{m}_j^+, \mathbf{n}}  \quad (\text{Left coupling})\\
 &\quad +i \sum_{j=1}^{2M} \sqrt{(n_j+1)\tilde{d}_j^*} \; \hat{\rho}_{\mathbf{m}, \mathbf{n}_j^+} \hat{q}_j  \quad (\text{Right coupling})\\
-&\quad \text{// Interaction Terms (Annihilation)}
-\quad -i \sum_{j=1}^{2M} \left( \sqrt{m_j \tilde{d}_j} \left[ \hat{q}_j, \hat{\rho}_{\mathbf{m}_j^-, \mathbf{n}} \right] + \sqrt{n_j \tilde{d}_j^*} \left[ \hat{q}_j, \hat{\rho}_{\mathbf{m}, \mathbf{n}_j^-} \right] \right)
+&\quad \text{// Interaction Terms (Annihilation)} \\
+&\quad -i \sum_{j=1}^{2M} \left( \sqrt{m_j \tilde{d}_j} \left[ \hat{q}_j, \hat{\rho}_{\mathbf{m}_j^-, \mathbf{n}} \right] + \sqrt{n_j \tilde{d}_j^*} \left[ \hat{q}_j, \hat{\rho}_{\mathbf{m}, \mathbf{n}_j^-} \right] \right)
 \end{aligned}
-$$ 
+$$

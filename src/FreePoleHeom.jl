@@ -11,6 +11,7 @@ include("corrfun.jl")
 include("stability.jl")
 
 export
+  HEOMStructure,
   HEOMOperator,
   HEOMPropagator,
   bary_fit,
