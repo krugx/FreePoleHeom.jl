@@ -1,4 +1,22 @@
 
+"""
+    bary_fit(beta, alpha, omega_c; rtol=1e-3, K_max=100, npoints=1e4, grid_fac=4.0, cutoff_fun=...)
+
+Performs a barycentric rational fit to the spectral density to obtain the expansion coefficients.
+
+# Arguments
+- `beta`: Inverse temperature.
+- `alpha`: Coupling strength.
+- `omega_c`: Cutoff frequency.
+- `rtol`: Relative tolerance for the fit.
+- `K_max`: Maximum number of poles.
+- `cutoff_fun`: The spectral density cutoff function (default: Drude-Lorentz type).
+
+# Returns
+- `d`: Vector of residues (coupling coefficients).
+- `gamma`: Vector of poles (frequencies).
+- `K`: Number of poles found.
+"""
 function bary_fit(
   beta::Float64,
   alpha::Float64,
