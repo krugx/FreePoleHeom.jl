@@ -1,4 +1,15 @@
 
+"""
+    build_heom_structure(K::Int, T::Int, hild::Int; useLtrunc::Bool=true)
+
+Constructs the `HEOMStructure` given the number of modes `K`, truncation depth `T`, and Hilbert space dimension `hild`.
+
+# Arguments
+- `K`: Number of bath modes.
+- `T`: Hierarchy depth (truncation level).
+- `hild`: Hilbert space dimension.
+- `useLtrunc`: If true, uses L-truncation (sum of indices ≤ T), otherwise rectangular truncation.
+"""
 function build_heom_structure(
   K::Int,
   T::Int,

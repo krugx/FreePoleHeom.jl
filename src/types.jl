@@ -1,4 +1,17 @@
 
+"""
+    HEOMStructure
+
+Data structure defining the hierarchy layout.
+# Fields
+- `K`: Number of bath modes (or pairs of poles in RWA).
+- `T`: Hierarchy depth (truncation level).
+- `hild`: Hilbert space dimension of the system.
+- `useLtrunc`: If true, uses L-truncation (sum n_k <= T).
+- `ados`: List of multi-indices.
+- `idxmap`: Map from multi-index to linear index.
+- `itvs`: UnitRanges for indexing the large matrix.
+"""
 struct HEOMStructure
   K::Int
   T::Int
@@ -9,6 +22,17 @@ struct HEOMStructure
   itvs::Vector{UnitRange{Int}}
 end
 
+"""
+    HEOMOperator
+
+Contains the physical operators and bath parameters required to build the HEOM generator.
+# Fields
+- `structure`: The `HEOMStructure`.
+- `H`: System Hamiltonian.
+- `q`: Coupling operators (vector of matrices).
+- `d`: Expansion coefficients (residues).
+- `gamma`: Expansion frequencies (poles).
+"""
 struct HEOMOperator
   structure::HEOMStructure
   H::Matrix{ComplexF64}
@@ -41,6 +65,15 @@ struct CachedOps
   end
 end
 
+"""
+    HEOMPropagator
+
+Wraps the sparse Liouvillian matrix for the HEOM evolution.
+# Fields
+- `mat`: The sparse HEOM generator matrix.
+- `structure`: The `HEOMStructure`.
+- `op`: The `HEOMOperator`.
+"""
 struct HEOMPropagator
   mat::SparseMatrixCSC
   structure::HEOMStructure

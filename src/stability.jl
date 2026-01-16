@@ -1,4 +1,11 @@
 
+"""
+    check_stability(prop::HEOMPropagator)
+
+Computes the steady state of the HEOM propagator and checks for stability.
+
+Returns the physical steady state `rho_ss` and the full ADO vector if the smallest magnitude eigenvalue is close to 0 (stable), otherwise returns -1.
+"""
 function check_stability(prop::HEOMPropagator)
   st = prop.structure
   dim = length(st.ados) * st.hild^2
