@@ -1,186 +1,153 @@
-### Open System Formulation
+# HEOM in the Rotating Frame (FP-HEOM)
+
+## Open System Formulation
+
+The total Hamiltonian is given by:
 
 $$
-\hat{H}_{tot}(t) = \hat{H}(t) + \hat{H}_I(t) + \hat{H}_R
+\hat{H}_{tot}(t) = \hat{H}_S(t) + \hat{H}_I(t) + \hat{H}_B
 $$
 
-With the reservoir operator
+With the reservoir (bath) operator:
 
 $$
-\hat{H}_R = \sum_j \left( \frac{\hat{p}_j^2}{2m_j} + \frac{1}{2}m_j\omega_j\hat{x}_j^2 \right)
+\hat{H}_B = \sum_k \left( \frac{\hat{p}_k^2}{2m_k} + \frac{1}{2}m_k\omega_k\hat{x}_k^2 \right)
 $$
 
-Where $\hat{H}(t)$ is the System + Control Hamiltonian
+The System + Control Hamiltonian $\hat{H}_S(t)$ is:
 
 $$
-\hat{H}(t) = \frac{\omega_q}{2}\hat{\sigma}_z + \epsilon(t)\hat{\sigma}_x
+\hat{H}_S(t) = \frac{\omega_q}{2}\hat{\sigma}_z + \epsilon(t)\hat{\sigma}_x
 $$
 
-The interaction Hamiltonian
+The interaction Hamiltonian is assumed to be:
 
 $$
-\hat{H}_I(t) = - \hat{V}(t)\sum_j c_j\hat{x}_j = -\hat{V}(t)\hat{X}
+\hat{H}_I(t) = - \hat{V} \sum_k c_k \hat{x}_k = -\hat{V} \hat{X}_B
 $$
 
-Transfer this to the rotating frame using the unitary
+where in the lab frame $\hat{V} = \hat{\sigma}_x$.
+
+### Rotating Frame Transformation
+
+We transform to the rotating frame using the unitary operator:
 
 $$
-\hat{R}(t) = \exp\left( i\frac{\omega_d}{2}t\hat{\sigma}_z \right) \otimes \hat{\mathbb{1}}_R
+\hat{U}(t) = \exp\left( i\frac{\omega_d}{2}t\hat{\sigma}_z \right)
 $$
 
-Resulting in 
-
-$$
-\begin{aligned}
-\hat{H}_{tot}^{rot}(t) &= \hat{R}(t)\hat{H}_{tot}(t)\hat{R}^\dagger(t) + i \dot{\hat{R}}(t)\hat{R}^\dagger(t)\\
-&= \frac{\Delta \omega}{2}\hat{\sigma}_z + \frac{1}{2} \left( \epsilon_x(t)\hat{\sigma}_x - \epsilon_y(t)\hat{\sigma}_y \right)\\
-&- \exp\left( i\frac{\omega_d}{2}t\hat{\sigma}_z \right) \hat{V}(t) \exp\left( -\frac{\omega_d}{2}t\hat{\sigma}_z \right)\\
-&+ \sum_j \left(\frac{\hat{p}_j^2}{2m_j} + \frac{1}{2}m_j\omega_j \hat{x}_j^2 \right)
-\end{aligned}
-$$
-
-In the lab frame
-
-$$
-\hat{V}(t) = \hat{\sigma}_x
-$$
-
-In the rotating frame
+The transformed Hamiltonian $\hat{H}_{rot}(t)$ is:
 
 $$
 \begin{aligned}
-\hat{F}(t) &= \exp\left( i\frac{\omega_d}{2}t\hat{\sigma}_z \right) \hat{\sigma}_x \exp\left( -i\frac{\omega_d}{2}t\hat{\sigma}_z \right)\\
-&= \cos(\omega_d t) \hat{\sigma}_x - \sin(\omega_d t)\hat{\sigma}_y\\
-&=\hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-i\omega_d t}
+\hat{H}_{rot}(t) &= \hat{U}(t)\hat{H}_{tot}(t)\hat{U}^\dagger(t) + i \dot{\hat{U}}(t)\hat{U}^\dagger(t) \\
+&= \hat{U}(t) \hat{H}_S(t) \hat{U}^\dagger(t) - \frac{\omega_d}{2}\hat{\sigma}_z + \hat{H}_I^{rot}(t) + \hat{H}_B
 \end{aligned}
 $$
 
-Where $\hat{\sigma}_+ = (\hat{\sigma}_x + i\hat{\sigma}_y)/2$ and $\hat{\sigma}_- = (\hat{\sigma}_x - i \hat{\sigma}_y)/2$
-
-And
+**System Part:**
 
 $$
 \begin{aligned}
-\epsilon(t) &= \cos(\omega_d t)\epsilon_x(t) + \sin(\omega_d t)\epsilon_y(t)\\
-&= \frac{1}{2}\left( e^{i\omega_d t} + e^{-i\omega_d t} \right)\epsilon_x(t) - \frac{i}{2}\left( e^{i\omega_d t} - e^{-i\omega_d t} \right) \epsilon_y(t)
+\hat{H}_{S}^{rot}(t) &= \hat{U}(t) \left( \frac{\omega_q}{2}\hat{\sigma}_z + \epsilon(t)\hat{\sigma}_x \right) \hat{U}^\dagger(t) - \frac{\omega_d}{2}\hat{\sigma}_z \\
+&= \frac{\Delta \omega}{2}\hat{\sigma}_z + \epsilon(t) \left( \hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-i\omega_d t} \right)
 \end{aligned}
 $$
 
-Then neglect fast rotating terms $\exp\left( \pm 2i \omega_d t \right)$
-
-Thus we find
-
+where $\Delta \omega = \omega_q - \omega_d$.
+Assuming the drive $\epsilon(t)$ has the form:
 $$
-\epsilon(t)e^{i\omega_d t} = \frac{1}{2}\left( \epsilon_x(t) - i \epsilon_y(t) \right)
+\epsilon(t) = 2 \epsilon_x(t) \cos(\omega_d t) + 2 \epsilon_y(t) \sin(\omega_d t)
 $$
-
-As a consequence
-
+Using the Rotating Wave Approximation (RWA) by neglecting terms oscillating at $\pm 2\omega_d$, we obtain:
 $$
-\epsilon(t)\left( \hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-i\omega_d t} \right) = \frac{1}{2}\epsilon_x(t)\hat{\sigma}_x - \frac{1}{2}\epsilon_y(t)\hat{\sigma}_y(t)
+\hat{H}_{S}^{RWA}(t) = \frac{\Delta \omega}{2}\hat{\sigma}_z + \frac{1}{2}\epsilon_x(t)\hat{\sigma}_x + \frac{1}{2}\epsilon_y(t)\hat{\sigma}_y
 $$
 
-### HEOM derivation
+**Interaction Part:**
 
-Feynman-Vernon influence functional
-
-$$
-\mathcal{F}_{FV} = \exp\left( -\int_0^t ds (F(s) - F(s'))\int_0^s d\tau \left(C(s-\tau)F(\tau) - C^*(s-\tau)F'(\tau) \right) \right)
-$$
-
-Where the matrix representation of $F(t)$:
-
-$$
-\hat{F}(t) = \hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-\omega_d t}
-$$
-
-Represent as $F(s) = q_+(s)e^{i\omega_d s} + q_-(s)e^{-i\omega_d s}$
-
-Neglect $e^{\pm i \omega_d (s+\tau)}$ and we find
-
-$$
-\mathcal{F}_{FV} = \mathcal{F}_\downarrow \cdot \mathcal{F}_{\uparrow}
-$$
-
-Define as well
+The interaction operator $\hat{V} = \hat{\sigma}_x$ transforms as:
 
 $$
 \begin{aligned}
-C_+(s-\tau) &= C(s-\tau)e^{-i\omega_d (s-\tau)}\\
-C_-(s-\tau) &= C(s-\tau)e^{+i\omega_d (s-\tau)}\\
+\hat{V}^{rot}(t) &= \hat{U}(t) \hat{\sigma}_x \hat{U}^\dagger(t) \\
+&= \hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-i\omega_d t}
 \end{aligned}
 $$
 
-Where
+Thus, the interaction Hamiltonian in the rotating frame is:
 
 $$
-\mathcal{F}_\uparrow = \exp\left( -\int_0^t ds (q_-(s) - q_-'(s)) \right)\int_0^t d\tau \left( C_+(s-\tau)q_+(\tau) - C_+^*(s-\tau)q_+'(\tau) \right)
+\hat{H}_I^{rot}(t) = - \left( \hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-i\omega_d t} \right) \hat{X}_B
 $$
 
-and
+## HEOM Derivation with RWA
+
+The Feynman-Vernon influence functional is determined by the bath correlation function $C(t) = \langle \hat{X}_B(t) \hat{X}_B(0) \rangle_B$.
+In the rotating frame, the effective interaction involves phases $e^{\pm i \omega_d t}$.
+
+The phase of the influence functional is (schematically):
+$$
+\Phi = \int_0^t ds \int_0^s d\tau \; \hat{V}^{rot}(s)^\times \left( C(s-\tau) \hat{V}^{rot}(\tau)^\to - C^*(s-\tau) \hat{V}^{rot}(\tau)^\leftarrow \right)
+$$
+where $\times$ denotes commutator ($A^\times B = [A, B]$), $\to$ denotes left multiplication, and $\leftarrow$ denotes right multiplication.
+
+Substituting $\hat{V}^{rot}(t) = \hat{\sigma}_+ e^{i\omega_d t} + \hat{\sigma}_- e^{-i\omega_d t}$:
+
+We expand the products and apply the RWA (neglecting terms like $e^{\pm i \omega_d (s+\tau)}$ which oscillate fast, keeping terms like $e^{\pm i \omega_d (s-\tau)}$).
+
+This splits the correlation function into two effective branches:
+
+1.  **Positive branch ($+$):** Couples $\hat{\sigma}_-$ at $s$ with $\hat{\sigma}_+$ at $\tau$.
+    $$ C_+(t) = C(t) e^{-i\omega_d t} $$
+    Associated operator: $\hat{q}_+ = \hat{\sigma}_+$
+2.  **Negative branch ($-$):** Couples $\hat{\sigma}_+$ at $s$ with $\hat{\sigma}_-$ at $\tau$.
+    $$ C_-(t) = C(t) e^{+i\omega_d t} $$
+    Associated operator: $\hat{q}_- = \hat{\sigma}_-$
+
+### Correlation Function Expansion
+
+We expand the original bath correlation function as a sum of exponentials (e.g., using FP-HEOM decomposition):
 
 $$
-\mathcal{F}_\downarrow = \exp\left( -\int_0^t ds (q_+(s) - q_+'(s)) \right)\int_0^t d\tau \left( C_-(s-\tau)q_-(\tau) - C_-^*(s-\tau)q_-'(\tau) \right)
+C(t) = \sum_{k=1}^{M} d_k e^{-\gamma_k t}
 $$
 
-Take the derivative
+Under RWA, we obtain a set of $2M$ effective modes. Let us index them by $j=1,\dots,2M$:
+
+*   For $j = 1, \dots, M$ (derived from $C_+$):
+    $$ \tilde{d}_j = d_j, \quad \tilde{\gamma}_j = \gamma_j + i\omega_d, \quad \hat{q}_j = \hat{\sigma}_+ $$
+*   For $j = M+1, \dots, 2M$ (derived from $C_-$):
+    $$ \tilde{d}_j = d_{j-M}, \quad \tilde{\gamma}_j = \gamma_{j-M} - i\omega_d, \quad \hat{q}_j = \hat{\sigma}_- $$
+
+(Note: The signs of $i\omega_d$ depend on the exact definition of $C_\pm$ vs $\hat{\sigma}_\pm$. With $\hat{V}(s)\hat{V}(\tau) \sim \sigma_-(s)\sigma_+(\tau) e^{-i\omega_d(s-\tau)}$, we get $\gamma + i\omega_d$ damping).
+
+### Hierarchy of Equations of Motion (HEOM)
+
+We define the Auxiliary Density Operators (ADOs) $\hat{\rho}_{\mathbf{m}, \mathbf{n}}$ where $\mathbf{m} = \{m_1, \dots, m_{2M}\}$ and $\mathbf{n} = \{n_1, \dots, n_{2M}\}$.
+Here, $m_j$ tracks the excitation from the "forward" path (Left multiplication) and $n_j$ from the "backward" path (Right multiplication).
+
+The equation of motion is:
 
 $$
 \begin{aligned}
-\frac{d\mathcal{F}_{FV}}{dt} &= \frac{d\mathcal{F}_\uparrow}{dt}\mathcal{F}_\downarrow + \mathcal{F}_\uparrow \frac{d \mathcal{F}_\downarrow}{dt}\\
-&= -\left( q_-(t) - q_-'(t) \right) \int_0^t d\tau \left( C_+(t-\tau)q_+(\tau) - C_+^*(t-\tau)q_+'(\tau) \right)\\
-&= -\left( q_+(t) - q_+'(t) \right) \int_0^t d\tau \left( C_-(t-\tau)q_-(\tau) - C_-^*(t-\tau)q_-'(\tau) \right)\\
+\frac{d}{dt}\hat{\rho}_{\mathbf{m,n}} &= -i \left[ \hat{H}_S^{RWA}, \hat{\rho}_{\mathbf{m,n}} \right] 
+- \sum_{j=1}^{2M} (m_j \tilde{\gamma}_j + n_j \tilde{\gamma}_j^*) \hat{\rho}_{\mathbf{m,n}} \\
+&\quad \text{// Interaction Terms (Creation)} \\
+&\quad -i \sum_{j=1}^{2M} \sqrt{(m_j+1)\tilde{d}_j} \; \hat{q}_j \hat{\rho}_{\mathbf{m}_j^+, \mathbf{n}}  \quad (\text{Left coupling})\\
+&\quad +i \sum_{j=1}^{2M} \sqrt{(n_j+1)\tilde{d}_j^*} \; \hat{\rho}_{\mathbf{m}, \mathbf{n}_j^+} \hat{q}_j  \quad (\text{Right coupling})\\
+&\quad \text{// Interaction Terms (Annihilation)} \\
+&\quad -i \sum_{j=1}^{2M} \left( \sqrt{m_j \tilde{d}_j} \left[ \hat{q}_j, \hat{\rho}_{\mathbf{m}_j^-, \mathbf{n}} \right] + \sqrt{n_j \tilde{d}_j^*} \left[ \hat{q}_j, \hat{\rho}_{\mathbf{m}, \mathbf{n}_j^-} \right] \right)
 \end{aligned}
 $$
 
-Make the expansion
+## Corrections and Remarks
 
-$$
-C(t) = \sum_{j=1}^{M} d_j e^{-\gamma_j t}
-$$
-
-Where $d_j,\gamma_j \in \mathbb{C}$.
-
-Define the ADOs
-
-$$
-\begin{aligned}
-\rho_{\bf m,n}(q_f,q_f',t) &= \int dq_i\int dq_i' \int \mathcal{D}[q]\int \mathcal{D}[q']\, \exp\left( i \mathcal{S}[q] - i \mathcal{S}[q'] \right)\\
-&\cdot \prod_{j=1}^{2K} \left[ \int_0^t ds \tilde{d}_j e^{-\tilde{\gamma}_j (t-s)} q_j(s) \right]^{m_j}\\
-&\cdot \prod_{j=1}^{2K} \left[ \int_0^t ds \tilde{d}_j^* e^{-\tilde{\gamma}_j^* (t-s)} q_j'(s) \right]^{n_j}\\
-&\mathcal{F}_{FV} \, \rho(q_i,q_i',0)
-\end{aligned}
-$$
-
-Where we define the new fit parameters for the multi exponential
-
-- $j=1,\dots,K$: 
-  $$
-  \begin{aligned}
-  \tilde{d}_j &= d_j\\
-  \tilde{\gamma}_j &= \gamma_j - i\omega_d\\
-  q_j &= q_+
-  \end{aligned}
-  $$
-
-- $j=K+1,\dots,2K$: 
-  $$
-  \begin{aligned}
-  \tilde{d}_j &= d_j\\
-  \tilde{\gamma}_j &= \gamma_j + i\omega_d\\
-  q_j &= q_-
-  \end{aligned}
-  $$
-
-The new ADOs have extended multi-indeces compared to the standard FP-HEOM ${\bf (m,n)} = (m_1,\dots, m_{2K},n_1,\dots,n_{2K})$
-
-Resulting in a HEOM for the rotating frame
-
-$$
-\begin{aligned}
-\frac{d}{dt}\hat{\rho}_{\bf m,n} &= -\left[\hat{H}_{tot}^{tot}, \hat{\rho}_{\bf m,n}\right] - \sum_{j=1}^{2K} \left( m_j \tilde{\gamma}_j + n_j \tilde{\gamma}_j^* \right) \hat{\rho}_{\bf m,n}\\
-&-i \sum_{j=1}^{2K} \sqrt{(m_j +1)\tilde{d}_j} \left[ \hat{q}_j, \hat{\rho}_{\bf m_j^+,n} \right]\\
-&-i \sum_{j=1}^{2K} \sqrt{(n_j +1)\tilde{d}_j^*} \left[ \hat{q}_j, \hat{\rho}_{\bf m,n_j^+} \right]\\
-&-i \sum_{j=1}^{2K}\left( \sqrt{m_j \tilde{d}_j} \hat{q}_j \hat{\rho}_{\bf m_j^-,n} - \sqrt{n_j \tilde{d}_j^*} \hat{\rho}_{\bf m,n_j^-}\hat{q}_j \right)
-\end{aligned}
-$$
+1.  **Hamiltonian Transformation**: The previous note had an incorrect form for the transformed interaction. It is crucial to replace $\hat{V}$ with its rotating frame counterpart $\sigma_+ e^{i\omega t} + \sigma_- e^{-i\omega t}$.
+2.  **Creation Terms**: The upward coupling (increasing hierarchy depth) separates into Left ($m$) and Right ($n$) terms.
+    *   The $m$-index term involves $-i \hat{q} \hat{\rho}$ (Left multiplication).
+    *   The $n$-index term involves $+i \hat{\rho} \hat{q}$ (Right multiplication).
+    *   This is consistent with the code using `Q_L` (Left) and `Q_R` (Right) operators for the respective hierarchy blocks.
+3.  **Annihilation Terms**: The downward coupling (decreasing depth) involves the commutator $[\hat{q}, \hat{\rho}]$ for both $m$ and $n$ branches. This sums the contributions from the forward and backward paths in the influence functional derivative.
+4.  **Scaling**: The factors $\sqrt{(m+1)\tilde{d}_j}$ imply a specific normalization of the ADOs, often used to improve numerical stability (scaling by $\prod \sqrt{n! d^n}$).
+5.  **Index Structure**: The code implements this by treating the $2M$ effective modes as the base "K". For each mode, it tracks a Left index ($m$) and a Right index ($n$), resulting in a hierarchy structure that handles the complex-valued correlation functions and RWA splitting correctly.
