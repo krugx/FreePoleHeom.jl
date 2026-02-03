@@ -17,3 +17,10 @@ build_heom_structure
 bary_fit
 check_stability
 ```
+
+## Krylov Propagation
+
+```@docs
+Krylov
+KrylovPropagator
+```

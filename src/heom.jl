@@ -1,4 +1,3 @@
-
 """
     build_heom_structure(K::Int, T::Int, hild::Int; useLtrunc::Bool=true)
 
@@ -46,6 +45,11 @@ function build_heom_structure(
   return HEOMStructure(K, T, hild, useLtrunc, ados, idxmap, itvs)
 end
 
+"""
+    diag_ado(r, op::HEOMOperator, cops::CachedOps)
+
+Computes the diagonal block of the HEOM matrix for a given multi-index `r`.
+"""
 function diag_ado(r, op::HEOMOperator, cops::CachedOps)
   st = op.structure
 
@@ -55,6 +59,11 @@ function diag_ado(r, op::HEOMOperator, cops::CachedOps)
   return ado_op
 end
 
+"""
+    shift_ado(r, j::Int, offset::Int, direction::Int, op::HEOMOperator, cops::CachedOps)
+
+Computes the off-diagonal coupling block for the HEOM matrix connecting state `r` to a shifted state.
+"""
 function shift_ado(
   r, j::Int,
   offset::Int,
@@ -77,6 +86,11 @@ function shift_ado(
   end
 end
 
+"""
+    build_matrix(op::HEOMOperator)::SparseMatrixCSC
+
+Builds the full sparse Liouvillian matrix for the HEOM.
+"""
 function build_matrix(op::HEOMOperator)::SparseMatrixCSC
   st = op.structure
 
@@ -112,4 +126,3 @@ function build_matrix(op::HEOMOperator)::SparseMatrixCSC
 
   return heom_matrix
 end
-

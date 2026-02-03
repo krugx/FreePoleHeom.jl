@@ -1,4 +1,3 @@
-
 """
     HEOMStructure
 
@@ -41,6 +40,11 @@ struct HEOMOperator
   gamma::Vector{ComplexF64}
 end
 
+"""
+    CachedOps
+
+Internal structure to cache Kronecker product operators for efficient matrix construction.
+"""
 struct CachedOps
   Id_op::SparseMatrixCSC
   L_op::SparseMatrixCSC
