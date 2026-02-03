@@ -70,3 +70,43 @@ To support standard GRAPE (Backward Adjoint), the `KrylovPropagator` must handle
 
 ### Summary
 The current implementation of `evolve_step` for `GradVector` in `src/krylov.jl` enables the code to run (fixing the `MethodError`), but it does not mathematically support the backward gradient calculation expected by default GRAPE. Switching to a propagator that supports FMD (like `Cheby` seems to do) or re-implementing `Krylov` to support storage-based adjoint gradients is required for convergence.
+
+## Debugging Notes (2026-02-03)
+
+### Changes made for GRAPE + Krylov compatibility
+- **`src/krylov.jl`**
+  - Removed internal adjoint handling in `apply_H!` and `evolve_step` (backward propagation should use negative `dt` and an adjoint generator provided by GRAPE).
+  - Implemented `QuantumPropagators.Interfaces.set_t!` and `set_state!` for proper reinitialization.
+  - Fixed backward stepping logic in `prop_step!` (decrement `n` when `backward=true` and stop when out of valid range).
+- **`ext/GradGenExt.jl`**
+  - Aligned `GradVector` propagation with `GradGenerator` forward-mode semantics. Removed backward coupling that was mixing gradient states into the main state.
+- **`test/qubit.jl`**
+  - Added a Cheby vs Krylov gradient comparison block (relative diff ~5%, cosine similarity ~0.9998).
+  - Experimented with tighter Krylov tolerances and Optim.jl optimizers.
+- **Project deps / compatibility**
+  - Added `Optim` to `Project.toml` and `Manifest.toml`.
+  - Added `ext/OptimCompatExt.jl` to override GRAPE’s Optim integration for newer Optim (removed `ls_success` field).
+  - Included this extension in `src/FreePoleHeom.jl`.
+
+### Core issues encountered
+- **GRAPE + Krylov (gradgen)**: Gradients are directionally correct but ~5% off in magnitude, enough to trigger LBFGSB line-search failure (`ABNORMAL_TERMINATION_IN_LNSRCH`).
+- **GRAPE + Krylov (taylor)**: Terminates at 0 iterations (no progress).
+- **Optim.jl integration**: GRAPE expects `ls_success` field (removed in Optim 1.13), requiring a compatibility override.
+- **Early termination in Optim**: Even with `GradientDescent`, optimization stops after 1 iteration (no effective step).
+
+### Suggested next steps
+- **Isolate and validate gradient accuracy**:
+  - Compare Krylov gradient vs finite differences for a handful of pulse parameters.
+  - Increase Krylov accuracy further only if it changes gradient magnitude (not just direction).
+- **Investigate GradVector propagation**:
+  - Verify that the Krylov `GradVector` exponential is faithful to `GradGenerator` block structure.
+  - Consider using a direct block-operator `LinearMap` to ensure exact block coupling.
+- **Try GRAPE with `gradient_method=:taylor`**:
+  - Tune `taylor_grad_max_order` and `taylor_grad_tolerance` to check if gradients stabilize.
+- **Alternative route**:
+  - Use a minimal custom GRAPE loop (forward/backward with overlap gradients) to validate Krylov propagation independently of GRAPE.jl’s abstractions.
+
+### Revert plan (if desired)
+- Remove `OptimCompatExt.jl` inclusion from `src/FreePoleHeom.jl` and delete `ext/OptimCompatExt.jl`.
+- Remove `Optim` from `Project.toml`/`Manifest.toml`.
+- Remove gradient comparison/debug blocks from `test/qubit.jl`.
