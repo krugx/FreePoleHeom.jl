@@ -11,11 +11,6 @@ include("corrfun.jl")
 include("stability.jl")
 include("krylov.jl")
 
-include("../ext/GradGenExt.jl")
-using .GradGenExt
-include("../ext/OptimCompatExt.jl")
-using .OptimCompatExt
-
 export
   HEOMStructure,
   HEOMOperator,
