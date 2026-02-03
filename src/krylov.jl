@@ -5,7 +5,7 @@ using QuantumPropagators.Interfaces: check_propagator
 using QuantumGradientGenerators
 using LinearAlgebra
 using SparseArrays
-using Expokit
+using ExponentialUtilities
 using LinearMaps
 
 """
@@ -68,7 +68,7 @@ to the state `x`, storing the result in `y`.
 - `backwards`: Unused. Backward propagation is handled via negative `dt` and
   an adjoint generator provided by the caller.
 """
-function apply_H!(y, x, u, gen::Generator; backwards::Bool=false)
+function apply_H!(y, x, u, gen; backwards::Bool=false)
   A0 = gen.ops[1]
   # y = A0*x  
   if backwards
@@ -118,9 +118,9 @@ function evolve_step(phi, u, dt, gen, p::Krylov; backwards=false)
 
   v_dense = phi
   if backwards
-    return expmv(+1im * dt, A', v_dense; tol=p.tol, m=p.m, anorm=p.anorm)
+    return expv(+1im * dt, A', v_dense; tol=p.tol, m=p.m)
   else
-    return expmv(-1im * dt, A, v_dense; tol=p.tol, m=p.m, anorm=p.anorm)
+    return expv(-1im * dt, A, v_dense; tol=p.tol, m=p.m)
   end
 
 end
@@ -161,66 +161,67 @@ function QuantumPropagators.init_prop(
   # Check consistency of state
   state_curr = inplace ? copy(state) : state
 
-    t = backward ? tlist[end] : tlist[1]
-    n = backward ? length(tlist) - 1 : 1
-  
-    return KrylovPropagator(
-      state_curr,
-      gen,
-      t,
-      n,
-      tlist,
-      parameters,
-      backward,
-      inplace,
-      k_method
-    )
-  end
-  
-  # Alias for module name usage (if FreePoleHeom is used as method)
-  QuantumPropagators.init_prop(state, gen, tlist, method::Val{:FreePoleHeom}; kwargs...) =
-    QuantumPropagators.init_prop(state, gen, tlist, Val(:Krylov); kwargs...)
-  
-  """
-      prop_step!(p::KrylovPropagator)
-  
-  Performs a single propagation step using the Krylov method.
-  """
-  function QuantumPropagators.prop_step!(p::KrylovPropagator)
-    N_T = length(p.tlist) - 1
-    if p.n < 1 || p.n > N_T
-      return nothing
-    end
-    
-    t_start = p.tlist[p.n]
-    t_end = p.tlist[p.n+1]
-    dt = t_end - t_start
-  
-    # Get controls and evaluate them
-    controls = QuantumPropagators.Controls.get_controls(p.gen)
-    vals = [QuantumPropagators.Controls.evaluate(c, p.tlist, p.n) for c in controls]
-  
-    new_state = evolve_step(p.state, vals, dt, p.gen, p.method; backwards=p.backward)
-    setfield!(p, :state, new_state)
-  
-    setfield!(p, :t, p.backward ? t_start : t_end)
-    setfield!(p, :n, p.n + (p.backward ? -1 : 1))
-    return p.state
-  end
-  
-  function QuantumPropagators.reinit_prop!(p::KrylovPropagator, state)
-    p.state .= state
-    setfield!(p, :t, p.backward ? p.tlist[end] : p.tlist[1])
-    setfield!(p, :n, p.backward ? length(p.tlist) - 1 : 1)
-    return p
-  end
-  
-  function QuantumPropagators.set_state!(p::KrylovPropagator, state)
-    p.state .= state
-    setfield!(p, :t, p.backward ? p.tlist[end] : p.tlist[1])
-    setfield!(p, :n, p.backward ? length(p.tlist) - 1 : 1)
-    return p
-  end  
-  function flatten(v::AbstractVector)  return Vector(v)
+  t = backward ? tlist[end] : tlist[1]
+  n = backward ? length(tlist) - 1 : 1
+
+  return KrylovPropagator(
+    state_curr,
+    gen,
+    t,
+    n,
+    tlist,
+    parameters,
+    backward,
+    inplace,
+    k_method
+  )
 end
 
+# Alias for module name usage (if FreePoleHeom is used as method)
+QuantumPropagators.init_prop(state, gen, tlist, method::Val{:FreePoleHeom}; kwargs...) =
+  QuantumPropagators.init_prop(state, gen, tlist, Val(:Krylov); kwargs...)
+
+"""
+    prop_step!(p::KrylovPropagator)
+
+Performs a single propagation step using the Krylov method.
+"""
+function QuantumPropagators.prop_step!(p::KrylovPropagator)
+  N_T = length(p.tlist) - 1
+  if p.n < 1 || p.n > N_T
+    return nothing
+  end
+
+  t_start = p.tlist[p.n]
+  t_end = p.tlist[p.n+1]
+  dt = t_end - t_start
+
+  # Get controls and evaluate them
+  controls = QuantumPropagators.Controls.get_controls(p.gen)
+  vals = [QuantumPropagators.Controls.evaluate(c, p.tlist, p.n) for c in controls]
+
+  new_state = evolve_step(p.state, vals, dt, p.gen, p.method; backwards=p.backward)
+  setfield!(p, :state, new_state)
+
+  setfield!(p, :t, p.backward ? t_start : t_end)
+  setfield!(p, :n, p.n + (p.backward ? -1 : 1))
+  return p.state
+end
+
+function QuantumPropagators.reinit_prop!(p::KrylovPropagator, state)
+  p.state .= state
+  setfield!(p, :t, p.backward ? p.tlist[end] : p.tlist[1])
+  setfield!(p, :n, p.backward ? length(p.tlist) - 1 : 1)
+  return p.state
+end
+
+function QuantumPropagators.set_state!(p::KrylovPropagator, state)
+  p.state .= state
+  setfield!(p, :t, p.backward ? p.tlist[end] : p.tlist[1])
+  setfield!(p, :n, p.backward ? length(p.tlist) - 1 : 1)
+  return p.state
+end
+
+function flatten(v::AbstractVector)
+  return Vector(v)
+end
