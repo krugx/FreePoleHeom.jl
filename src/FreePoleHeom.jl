@@ -13,6 +13,8 @@ include("krylov.jl")
 
 include("../ext/GradGenExt.jl")
 using .GradGenExt
+include("../ext/OptimCompatExt.jl")
+using .OptimCompatExt
 
 export
   HEOMStructure,

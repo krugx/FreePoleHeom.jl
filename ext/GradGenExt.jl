@@ -40,21 +40,17 @@ end
 
 function FreePoleHeom.apply_H!(y::GradVector, x::GradVector, u, gen::GradGenerator; backwards::Bool=false)
   # Diagonal parts (H on state, H on grad_states)
-  FreePoleHeom.apply_H!(y.state, x.state, u, gen.G; backwards=backwards)
+  # `backwards` is unused here; backward propagation is handled via negative `dt`
+  # and an adjoint generator provided by the caller.
+  FreePoleHeom.apply_H!(y.state, x.state, u, gen.G; backwards=false)
   for i in eachindex(y.grad_states)
-    FreePoleHeom.apply_H!(y.grad_states[i], x.grad_states[i], u, gen.G; backwards=backwards)
+    FreePoleHeom.apply_H!(y.grad_states[i], x.grad_states[i], u, gen.G; backwards=false)
   end
 
-  # Off-diagonal parts
-  # Forward:  d(grad)/dt = ... + H_i * state
-  # Backward: d(state)/dt = ... + H_i' * grad
+  # Off-diagonal parts (gradients accumulate from the state)
   for i in eachindex(gen.control_derivs)
     Hi = gen.control_derivs[i]
-    if backwards
-      mul!(y.state, adjoint(Hi), x.grad_states[i], 1.0, 1.0)
-    else
-      mul!(y.grad_states[i], Hi, x.state, 1.0, 1.0)
-    end
+    mul!(y.grad_states[i], Hi, x.state, 1.0, 1.0)
   end
   return y
 end

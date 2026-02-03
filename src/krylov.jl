@@ -57,31 +57,25 @@ end
 """
     apply_H!(y, x, u, gen; backwards::Bool=false)
 
-Applies the time-dependent Hamiltonian/Liouvillian `gen` at control values `u` to the state `x`, storing the result in `y`.
+Applies the time-dependent Hamiltonian/Liouvillian `gen` at control values `u`
+to the state `x`, storing the result in `y`.
 
 # Arguments
 - `y`: Output vector.
 - `x`: Input vector.
 - `u`: Vector of control values.
 - `gen`: Generator object.
-- `backwards`: If true, applies the adjoint of the generator.
+- `backwards`: Unused. Backward propagation is handled via negative `dt` and
+  an adjoint generator provided by the caller.
 """
 function apply_H!(y, x, u, gen; backwards::Bool=false)
   A0 = gen.prop_0.mat
-  # y = A0*x  
-  if backwards
-    mul!(y, adjoint(A0), x)
-  else
-    mul!(y, A0, x)
-  end
+  # y = A0*x
+  mul!(y, A0, x)
   # y += Σ u[i] * A_i * x
   for i in eachindex(gen.prop_C)
     Ai = gen.prop_C[i].mat
-    if backwards
-      mul!(y, adjoint(Ai), x, u[i], 1.0)
-    else
-      mul!(y, Ai, x, u[i], 1.0)
-    end
+    mul!(y, Ai, x, u[i], 1.0)
   end
   return y
 end
@@ -90,6 +84,8 @@ end
     apply_H!(y, x, u, gen::Generator; backwards::Bool=false)
 
 Specialized application of the generator for `QuantumPropagators.Generators.Generator`.
+The `backwards` flag is unused; backward propagation is handled via negative
+`dt` and an adjoint generator.
 """
 function apply_H!(y, x, u, gen::Generator; backwards::Bool=false)
   ops = gen.ops
@@ -103,11 +99,7 @@ function apply_H!(y, x, u, gen::Generator; backwards::Bool=false)
   if n_ops == n_amps + 1
     # ops[1] is drift
     H0 = ops[1]
-    if backwards
-      mul!(y, adjoint(H0), x)
-    else
-      mul!(y, H0, x)
-    end
+    mul!(y, H0, x)
     op_offset = 1
   elseif n_ops == n_amps
     # No drift, initialize y to 0
@@ -121,11 +113,7 @@ function apply_H!(y, x, u, gen::Generator; backwards::Bool=false)
   for i in 1:n_amps
     Hi = ops[i+op_offset]
     val = u[i]
-    if backwards
-      mul!(y, adjoint(Hi), x, val, 1.0)
-    else
-      mul!(y, Hi, x, val, 1.0)
-    end
+    mul!(y, Hi, x, val, 1.0)
   end
   return y
 end
@@ -151,15 +139,12 @@ function evolve_step(phi, u, dt, gen, p::Krylov; backwards=false)
     y = similar(x)
     apply_H!(y, x, u, gen; backwards=false)
   end
-  Ab = x -> begin
-    y = similar(x)
-    apply_H!(y, x, u, gen; backwards=true)
-  end
+  Ab = Af
 
   A = LinearMap{ComplexF64}(Af, Ab, n, n)
 
   v_dense = phi
-  w_dense = expmv(-1im * dt, (backwards ? adjoint(A) : A), v_dense; tol=p.tol, m=p.m, anorm=p.anorm)
+  w_dense = expmv(-1im * dt, A, v_dense; tol=p.tol, m=p.m, anorm=p.anorm)
 
   return w_dense
 end
@@ -180,16 +165,11 @@ function evolve_step(phi::GradVector, u, dt, gen, p::Krylov; backwards=false)
     return y_flat
   end
 
-  Ab! = (y_flat, x_flat) -> begin
-    copyto!(aux_x, x_flat)
-    apply_H!(aux_y, aux_x, u, gen; backwards=true)
-    copyto!(y_flat, aux_y)
-    return y_flat
-  end
+  Ab! = Af!
 
   A = LinearMap{ComplexF64}(Af!, Ab!, n, n; ismutating=true)
 
-  w_flat = expmv(-1im * dt, (backwards ? adjoint(A) : A), v_flat; tol=p.tol, m=p.m, anorm=p.anorm)
+  w_flat = expmv(-1im * dt, A, v_flat; tol=p.tol, m=p.m, anorm=p.anorm)
 
   w = deepcopy(phi)
   copyto!(w, w_flat)
@@ -256,7 +236,8 @@ QuantumPropagators.init_prop(state, gen, tlist, method::Val{:FreePoleHeom}; kwar
 Performs a single propagation step using the Krylov method.
 """
 function QuantumPropagators.prop_step!(p::KrylovPropagator)
-  if p.n >= length(p.tlist)
+  N_T = length(p.tlist) - 1
+  if p.n < 1 || p.n > N_T
     return nothing
   end
 
@@ -276,8 +257,8 @@ function QuantumPropagators.prop_step!(p::KrylovPropagator)
   new_state = evolve_step(p.state, vals, dt, p.gen, p.method; backwards=p.backward)
   setfield!(p, :state, new_state)
 
-  setfield!(p, :t, t_end)
-  setfield!(p, :n, p.n + 1)
+  setfield!(p, :t, p.backward ? t_start : t_end)
+  setfield!(p, :n, p.n + (p.backward ? -1 : 1))
   return p.state
 end
 
@@ -286,18 +267,15 @@ function flatten(v::AbstractVector)
 end
 
 
-#=
-# Optional: set_t!, set_state! (AbstractPropagator might handle these via fields, but good to be explicit)
+# set_t!, set_state! to support reinit_prop! and GRAPE workflows
 function QuantumPropagators.Interfaces.set_t!(p::KrylovPropagator, t)
   setfield!(p, :t, t)
-  # Update n: Find interval index
-  # We assume t is in tlist. 
-  # If t is not exactly in tlist, we find the interval it falls into.
+  # Update n: index of the interval starting at t
   n = searchsortedlast(p.tlist, t)
   if n < 1
     n = 1
   elseif n >= length(p.tlist)
-    n = length(p.tlist)
+    n = length(p.tlist) - 1
   end
   setfield!(p, :n, n)
 end
@@ -305,8 +283,9 @@ end
 function QuantumPropagators.Interfaces.set_state!(p::KrylovPropagator, state)
   if p.inplace && p.state isa AbstractArray && state isa AbstractArray && size(p.state) == size(state)
     copyto!(p.state, state)
+    return p.state
   else
     setfield!(p, :state, state)
+    return p.state
   end
 end
-=#
