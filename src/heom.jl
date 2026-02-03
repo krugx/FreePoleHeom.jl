@@ -124,5 +124,5 @@ function build_matrix(op::HEOMOperator)::SparseMatrixCSC
     end
   end
 
-  return heom_matrix
+  return 1im * heom_matrix
 end

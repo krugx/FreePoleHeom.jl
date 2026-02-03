@@ -11,6 +11,9 @@ include("corrfun.jl")
 include("stability.jl")
 include("krylov.jl")
 
+include("../ext/GradGenExt.jl")
+using .GradGenExt
+
 export
   HEOMStructure,
   HEOMOperator,
