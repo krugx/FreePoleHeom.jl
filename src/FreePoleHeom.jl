@@ -9,7 +9,6 @@ include("types.jl")
 include("heom.jl")
 include("corrfun.jl")
 include("stability.jl")
-include("krylov.jl")
 
 export
   HEOMStructure,
@@ -17,8 +16,6 @@ export
   HEOMPropagator,
   bary_fit,
   build_heom_structure,
-  check_stability,
-  Krylov,
-  KrylovPropagator
+  check_stability
 
 end

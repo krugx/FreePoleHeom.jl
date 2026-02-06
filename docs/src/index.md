@@ -8,14 +8,7 @@
 - **Sparse Algebra**: Utilizes sparse matrices for efficient memory usage and computation of the HEOM generator.
 - **Stability Analysis**: Includes tools to check the convergence and stability of the hierarchy (`check_stability`).
 
-## Usage Contexts
-
-This package is designed to be versatile, supporting both:
-
-1.  **Standard Frame**: Standard HEOM where the bath correlation function is decomposed directly.
-2.  **Interaction Frame**: Extended HEOM formulation (FP-HEOM) that accounts for rotating frame transformations, splitting the correlation function into positive and negative frequency branches (see [Theory](theory.md)).
 
 ## Documentation
 
-- [Theory](theory.md): Mathematical derivation and details on the Interaction Frame FP-HEOM.
 - [API Reference](api.md): Documentation of types and functions.

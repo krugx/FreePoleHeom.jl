@@ -8,6 +8,7 @@ This section documents the public API of `FreePoleHeom.jl`.
 HEOMStructure
 HEOMOperator
 HEOMPropagator
+FreePoleHeom.CachedOps
 ```
 
 ## Functions
@@ -16,11 +17,8 @@ HEOMPropagator
 build_heom_structure
 bary_fit
 check_stability
+FreePoleHeom.build_matrix
+FreePoleHeom.diag_ado
+FreePoleHeom.shift_ado
 ```
 
-## Krylov Propagation
-
-```@docs
-Krylov
-KrylovPropagator
-```
